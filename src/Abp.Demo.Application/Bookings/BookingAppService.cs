@@ -12,22 +12,12 @@ using Volo.Abp.Users;
 namespace Abp.Demo.Bookings;
 
 [Authorize(DemoPermissions.Bookings.Default)]
-public class BookingAppService : DemoAppService, IBookingAppService
+public class BookingAppService(
+    IBookingRepository bookingRepository,
+    BookingManager bookingManager,
+    IRepository<Resource, Guid> resourceRepository)
+    : DemoAppService, IBookingAppService
 {
-    private readonly IBookingRepository bookingRepository;
-    private readonly BookingManager bookingManager;
-    private readonly IRepository<Resource, Guid> resourceRepository;
-
-    public BookingAppService(
-        IBookingRepository bookingRepository,
-        BookingManager bookingManager,
-        IRepository<Resource, Guid> resourceRepository)
-    {
-        this.bookingRepository = bookingRepository;
-        this.bookingManager = bookingManager;
-        this.resourceRepository = resourceRepository;
-    }
-
     public async Task<BookingDto> GetAsync(Guid id)
     {
         var booking = await bookingRepository.GetAsync(id);
