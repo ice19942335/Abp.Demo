@@ -1,0 +1,139 @@
+@page
+@using Abp.Demo.Localization
+@using Microsoft.AspNetCore.Mvc.Localization
+@using Volo.Abp.AspNetCore.Mvc.UI.Bootstrap.TagHelpers.Modal
+@model Abp.Demo.Web.Pages.Bookings.CreateModalModel
+@inject IHtmlLocalizer<DemoResource> L
+@{
+    Layout = null;
+}
+
+<form method="post" asp-page="/Bookings/CreateModal">
+    <abp-modal>
+        <abp-modal-header title="@L["NewBooking"].Value"></abp-modal-header>
+        <abp-modal-body>
+            <abp-select asp-for="Booking.ResourceId"
+                        asp-items="@Model.ResourceList"
+                        label="@L["ResourceName"].Value"
+                        id="ResourceSelect" />
+
+            <div id="SlotWarning" class="alert alert-warning d-none" role="alert"></div>
+
+            <div id="DateTimeFields">
+                <div id="DateOnlyGroup">
+                    <div class="mb-3">
+                        <label class="form-label">@L["BookingStartTime"]</label>
+                        <input type="date" class="form-control" id="StartDate" />
+                    </div>
+                </div>
+                <div id="DateTimeGroup" class="d-none">
+                    <div class="mb-3">
+                        <label class="form-label">@L["BookingStartTime"]</label>
+                        <input type="datetime-local" class="form-control" id="StartDateTime" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">@L["BookingEndTime"]</label>
+                        <input type="datetime-local" class="form-control" id="EndDateTime" />
+                    </div>
+                </div>
+            </div>
+
+            <input type="hidden" asp-for="Booking.StartTime" id="HiddenStartTime" />
+            <input type="hidden" asp-for="Booking.EndTime" id="HiddenEndTime" />
+
+            <abp-input asp-for="Booking.Purpose" label="@L["BookingPurpose"].Value" />
+        </abp-modal-body>
+        <abp-modal-footer buttons="@(AbpModalButtons.Cancel | AbpModalButtons.Save)"></abp-modal-footer>
+    </abp-modal>
+</form>
+
+<script>
+    $(function () {
+        var l = abp.localization.getResource('Demo');
+        var bookingService = abp.demo.bookings.booking;
+
+        var resourceTypes = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.ResourceTypes));
+
+        var $resourceSelect = $('#ResourceSelect');
+        var $slotWarning = $('#SlotWarning');
+        var $dateOnlyGroup = $('#DateOnlyGroup');
+        var $dateTimeGroup = $('#DateTimeGroup');
+        var $startDate = $('#StartDate');
+        var $startDateTime = $('#StartDateTime');
+        var $endDateTime = $('#EndDateTime');
+        var $hiddenStart = $('#HiddenStartTime');
+        var $hiddenEnd = $('#HiddenEndTime');
+
+        function isWorkspace(resourceId) {
+            return resourceTypes[resourceId] === 1;
+        }
+
+        function updateSlot(resourceId) {
+            if (!resourceId) return;
+
+            $slotWarning.addClass('d-none');
+
+            bookingService.getNextAvailableSlot(resourceId).then(function (slot) {
+                var start = new Date(slot.startTime);
+                var end = new Date(slot.endTime);
+
+                if (isWorkspace(resourceId)) {
+                    $dateOnlyGroup.removeClass('d-none');
+                    $dateTimeGroup.addClass('d-none');
+
+                    var dateStr = start.toISOString().substring(0, 10);
+                    $startDate.val(dateStr);
+                } else {
+                    $dateOnlyGroup.addClass('d-none');
+                    $dateTimeGroup.removeClass('d-none');
+
+                    $startDateTime.val(toLocalDateTimeString(start));
+                    $endDateTime.val(toLocalDateTimeString(end));
+                }
+
+                syncHiddenFields();
+
+                if (!slot.isAvailable) {
+                    $slotWarning.removeClass('d-none')
+                        .text(l('ResourceBusySlot'));
+                }
+            });
+        }
+
+        function toLocalDateTimeString(date) {
+            var y = date.getFullYear();
+            var m = String(date.getMonth() + 1).padStart(2, '0');
+            var d = String(date.getDate()).padStart(2, '0');
+            var h = String(date.getHours()).padStart(2, '0');
+            var min = String(date.getMinutes()).padStart(2, '0');
+            return y + '-' + m + '-' + d + 'T' + h + ':' + min;
+        }
+
+        function syncHiddenFields() {
+            var resourceId = $resourceSelect.val();
+            if (isWorkspace(resourceId)) {
+                var dateVal = $startDate.val();
+                if (dateVal) {
+                    $hiddenStart.val(dateVal + 'T00:00:00');
+                    $hiddenEnd.val(dateVal + 'T23:59:59');
+                }
+            } else {
+                $hiddenStart.val($startDateTime.val());
+                $hiddenEnd.val($endDateTime.val());
+            }
+        }
+
+        $resourceSelect.on('change', function () {
+            updateSlot($(this).val());
+        });
+
+        $startDate.on('change', syncHiddenFields);
+        $startDateTime.on('change', syncHiddenFields);
+        $endDateTime.on('change', syncHiddenFields);
+
+        var initialResourceId = $resourceSelect.val();
+        if (initialResourceId) {
+            updateSlot(initialResourceId);
+        }
+    });
+</script>

@@ -1,0 +1,132 @@
+﻿@page
+@model Abp.Demo.Web.Pages.IndexModel
+@using Abp.Demo.Web.Menus
+@using Volo.Abp.AspNetCore.Mvc.UI.Layout
+@using Microsoft.AspNetCore.Mvc.Localization
+@using Abp.Demo.Localization
+@using Abp.Demo.Booking
+@using Volo.Abp.Users
+@inject IPageLayout PageLayout
+@inject IHtmlLocalizer<DemoResource> L
+@inject ICurrentUser CurrentUser
+@{
+    PageLayout.Content.Title = L["Menu:Home"].Value;
+    PageLayout.Content.BreadCrumb.ShowCurrent = false;
+    PageLayout.Content.ShowToolbar = false;
+    PageLayout.Content.MenuItemName = DemoMenus.Home;
+}
+
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body text-center py-4">
+                    <h2>@L["Welcome"]</h2>
+                    <p class="lead text-muted mb-0">@L["LongWelcomeMessage"]</p>
+                    @if (!CurrentUser.IsAuthenticated)
+                    {
+                        <a href="/Account/Login" class="btn btn-primary mt-3">
+                            <i class="fa fa-sign-in-alt me-1"></i>Login
+                        </a>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if (CurrentUser.IsAuthenticated)
+    {
+        <div class="row mb-4">
+            <div class="col-md-3 col-sm-6 mb-3">
+                <div class="card text-center h-100">
+                    <div class="card-body">
+                        <div class="display-4 fw-bold text-primary">@Model.Dashboard.ActiveResources</div>
+                        <p class="text-muted mb-0">@L["Dashboard:ActiveResources"]</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 mb-3">
+                <div class="card text-center h-100">
+                    <div class="card-body">
+                        <div class="display-4 fw-bold text-warning">@Model.Dashboard.PendingBookings</div>
+                        <p class="text-muted mb-0">@L["Dashboard:PendingBookings"]</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 mb-3">
+                <div class="card text-center h-100">
+                    <div class="card-body">
+                        <div class="display-4 fw-bold text-success">@Model.Dashboard.ConfirmedBookings</div>
+                        <p class="text-muted mb-0">@L["Dashboard:ConfirmedBookings"]</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 mb-3">
+                <div class="card text-center h-100">
+                    <div class="card-body">
+                        <div class="display-4 fw-bold text-info">@Model.Dashboard.CompletedBookings</div>
+                        <p class="text-muted mb-0">@L["Dashboard:CompletedBookings"]</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fa fa-clock me-2"></i>@L["Dashboard:UpcomingBookings"]
+                        </h5>
+                    </div>
+                    <div class="card-body p-0">
+                        @if (Model.Dashboard.UpcomingBookings.Any())
+                        {
+                            <div class="table-responsive">
+                                <table class="table table-hover mb-0" data-testid="upcoming-bookings-table">
+                                    <thead>
+                                        <tr>
+                                            <th>@L["ResourceName"]</th>
+                                            <th>@L["BookingStartTime"]</th>
+                                            <th>@L["BookingEndTime"]</th>
+                                            <th>@L["BookingPurpose"]</th>
+                                            <th>@L["BookingStatus"]</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var booking in Model.Dashboard.UpcomingBookings)
+                                        {
+                                            <tr>
+                                                <td>@booking.ResourceName</td>
+                                                <td>@booking.StartTime.ToString("g")</td>
+                                                <td>@booking.EndTime.ToString("g")</td>
+                                                <td>@booking.Purpose</td>
+                                                <td>
+                                                    @if (booking.Status == BookingStatus.Pending)
+                                                    {
+                                                        <span class="badge bg-warning">@L[$"BookingStatus:{booking.Status}"]</span>
+                                                    }
+                                                    else if (booking.Status == BookingStatus.Confirmed)
+                                                    {
+                                                        <span class="badge bg-success">@L[$"BookingStatus:{booking.Status}"]</span>
+                                                    }
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="text-center py-4 text-muted">
+                                <i class="fa fa-calendar-times fa-2x mb-2 d-block"></i>
+                                @L["Dashboard:NoUpcoming"]
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>

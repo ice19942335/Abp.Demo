@@ -1,0 +1,17 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: abp-postgres
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: abp
+      POSTGRES_USER: abp
+      POSTGRES_PASSWORD: password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./etc/docker/init-schema.sql:/docker-entrypoint-initdb.d/init-schema.sql:ro
+
+volumes:
+  postgres_data:

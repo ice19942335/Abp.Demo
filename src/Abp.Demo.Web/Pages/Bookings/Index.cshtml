@@ -1,0 +1,38 @@
+@page
+@using Abp.Demo.Permissions
+@using Abp.Demo.Localization
+@using Abp.Demo.Web.Menus
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Mvc.Localization
+@using Volo.Abp.AspNetCore.Mvc.UI.Layout
+@model Abp.Demo.Web.Pages.Bookings.IndexModel
+@inject IPageLayout PageLayout
+@inject IHtmlLocalizer<DemoResource> L
+@inject IAuthorizationService Authorization
+@{
+    PageLayout.Content.Title = L["Bookings"].Value;
+    PageLayout.Content.MenuItemName = DemoMenus.Bookings;
+}
+
+@section scripts {
+    <script src="/Pages/Bookings/index.js"></script>
+}
+
+<abp-card>
+    <abp-card-header>
+        <abp-row>
+            <abp-column size-md="_6">
+                <abp-card-title>@L["Bookings"]</abp-card-title>
+            </abp-column>
+            <abp-column size-md="_6" class="text-end">
+                @if (await Authorization.IsGrantedAsync(DemoPermissions.Bookings.Create))
+                {
+                    <abp-button id="NewBookingButton" text="@L["NewBooking"].Value" icon="plus" button-type="Primary" />
+                }
+            </abp-column>
+        </abp-row>
+    </abp-card-header>
+    <abp-card-body>
+        <abp-table striped-rows="true" id="BookingsTable"></abp-table>
+    </abp-card-body>
+</abp-card>
