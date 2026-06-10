@@ -9,7 +9,10 @@ using Volo.Abp.Application.Dtos;
 
 namespace Abp.Demo.Web.Pages.Bookings;
 
-public class CreateModalModel : DemoPageModel
+public class CreateModalModel(
+    IBookingAppService bookingAppService,
+    IResourceAppService resourceAppService)
+    : DemoPageModel
 {
     [BindProperty]
     public CreateBookingDto Booking { get; set; } = null!;
@@ -17,17 +20,6 @@ public class CreateModalModel : DemoPageModel
     public List<SelectListItem> ResourceList { get; set; } = null!;
 
     public Dictionary<string, int> ResourceTypes { get; set; } = null!;
-
-    private readonly IBookingAppService bookingAppService;
-    private readonly IResourceAppService resourceAppService;
-
-    public CreateModalModel(
-        IBookingAppService bookingAppService,
-        IResourceAppService resourceAppService)
-    {
-        this.bookingAppService = bookingAppService;
-        this.resourceAppService = resourceAppService;
-    }
 
     public async Task OnGetAsync()
     {

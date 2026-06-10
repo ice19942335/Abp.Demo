@@ -23,8 +23,8 @@ namespace Abp.Demo.EntityFrameworkCore;
 [ReplaceDbContext(typeof(IIdentityDbContext))]
 [ReplaceDbContext(typeof(ITenantManagementDbContext))]
 [ConnectionStringName("Default")]
-public class DemoDbContext :
-    AbpDbContext<DemoDbContext>,
+public class DemoDbContext(DbContextOptions<DemoDbContext> options) :
+    AbpDbContext<DemoDbContext>(options),
     ITenantManagementDbContext,
     IIdentityDbContext
 {
@@ -59,12 +59,6 @@ public class DemoDbContext :
     public DbSet<TenantConnectionString> TenantConnectionStrings { get; set; }
 
     #endregion
-
-    public DemoDbContext(DbContextOptions<DemoDbContext> options)
-        : base(options)
-    {
-
-    }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

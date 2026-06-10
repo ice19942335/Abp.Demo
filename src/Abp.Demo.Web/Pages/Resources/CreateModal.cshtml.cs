@@ -4,17 +4,10 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Abp.Demo.Web.Pages.Resources;
 
-public class CreateModalModel : DemoPageModel
+public class CreateModalModel(IResourceAppService resourceAppService) : DemoPageModel
 {
     [BindProperty]
     public CreateUpdateResourceDto Resource { get; set; } = null!;
-
-    private readonly IResourceAppService resourceAppService;
-
-    public CreateModalModel(IResourceAppService resourceAppService)
-    {
-        this.resourceAppService = resourceAppService;
-    }
 
     public void OnGet()
     {

@@ -10,14 +10,9 @@ using Volo.Abp.EntityFrameworkCore;
 
 namespace Abp.Demo.Bookings;
 
-public class EfCoreBookingRepository
-    : EfCoreRepository<DemoDbContext, Booking, Guid>, IBookingRepository
+public class EfCoreBookingRepository(IDbContextProvider<DemoDbContext> dbContextProvider)
+    : EfCoreRepository<DemoDbContext, Booking, Guid>(dbContextProvider), IBookingRepository
 {
-    public EfCoreBookingRepository(IDbContextProvider<DemoDbContext> dbContextProvider)
-        : base(dbContextProvider)
-    {
-    }
-
     public async Task<bool> HasConflictAsync(
         Guid resourceId,
         DateTime startTime,

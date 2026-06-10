@@ -16,28 +16,14 @@ using Volo.Abp.TenantManagement;
 
 namespace Abp.Demo.Data;
 
-public class DemoDbMigrationService : ITransientDependency
+public class DemoDbMigrationService(
+    IDataSeeder dataSeeder,
+    ITenantRepository tenantRepository,
+    ICurrentTenant currentTenant,
+    IEnumerable<IDemoDbSchemaMigrator> dbSchemaMigrators)
+    : ITransientDependency
 {
-    public ILogger<DemoDbMigrationService> Logger { get; set; }
-
-    private readonly IDataSeeder _dataSeeder;
-    private readonly IEnumerable<IDemoDbSchemaMigrator> _dbSchemaMigrators;
-    private readonly ITenantRepository _tenantRepository;
-    private readonly ICurrentTenant _currentTenant;
-
-    public DemoDbMigrationService(
-        IDataSeeder dataSeeder,
-        ITenantRepository tenantRepository,
-        ICurrentTenant currentTenant,
-        IEnumerable<IDemoDbSchemaMigrator> dbSchemaMigrators)
-    {
-        _dataSeeder = dataSeeder;
-        _tenantRepository = tenantRepository;
-        _currentTenant = currentTenant;
-        _dbSchemaMigrators = dbSchemaMigrators;
-
-        Logger = NullLogger<DemoDbMigrationService>.Instance;
-    }
+    public ILogger<DemoDbMigrationService> Logger { get; set; } = NullLogger<DemoDbMigrationService>.Instance;
 
     public async Task MigrateAsync()
     {
@@ -58,12 +44,12 @@ public class DemoDbMigrationService : ITransientDependency
         if (MultiTenancyConsts.IsEnabled)
         {
             
-            var tenants = await _tenantRepository.GetListAsync(includeDetails: true);
+            var tenants = await tenantRepository.GetListAsync(includeDetails: true);
 
             var migratedDatabaseSchemas = new HashSet<string>();
             foreach (var tenant in tenants)
             {
-                using (_currentTenant.Change(tenant.Id))
+                using (currentTenant.Change(tenant.Id))
                 {
                     if (tenant.ConnectionStrings.Any())
                     {
@@ -95,7 +81,7 @@ public class DemoDbMigrationService : ITransientDependency
         Logger.LogInformation(
             $"Migrating schema for {(tenant == null ? "host" : tenant.Name + " tenant")} database...");
         
-        foreach (var migrator in _dbSchemaMigrators)
+        foreach (var migrator in dbSchemaMigrators)
         {
             await migrator.MigrateAsync();
         }
@@ -105,7 +91,7 @@ public class DemoDbMigrationService : ITransientDependency
     {
         Logger.LogInformation($"Executing {(tenant == null ? "host" : tenant.Name + " tenant")} database seed...");
         
-        await _dataSeeder.SeedAsync(new DataSeedContext(tenant?.Id)
+        await dataSeeder.SeedAsync(new DataSeedContext(tenant?.Id)
             .WithProperty(IdentityDataSeedContributor.AdminEmailPropertyName,
                 DemoConsts.AdminEmailDefaultValue)
             .WithProperty(IdentityDataSeedContributor.AdminPasswordPropertyName,

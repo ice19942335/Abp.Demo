@@ -12,6 +12,7 @@ using Abp.Demo.MultiTenancy;
 using Abp.Demo.Permissions;
 using Abp.Demo.Web.Menus;
 using Abp.Demo.Web.HealthChecks;
+using Abp.Demo.Web.Database;
 using Microsoft.OpenApi;
 using Volo.Abp;
 using Volo.Abp.Studio;
@@ -157,6 +158,8 @@ public class DemoWebModule : AbpModule
         {
             options.IsDynamicPermissionStoreEnabled = true;
         });
+
+        context.Services.AddHostedService<DatabaseInitializationHostedService>();
     }
 
 
@@ -290,6 +293,8 @@ public class DemoWebModule : AbpModule
             app.UseHsts();
         }
 
+        app.UseHttpsRedirection();
+        
         app.UseCorrelationId();
         app.UseRouting();
         app.MapAbpStaticAssets();

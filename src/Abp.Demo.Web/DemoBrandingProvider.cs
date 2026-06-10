@@ -6,14 +6,7 @@ using Abp.Demo.Localization;
 namespace Abp.Demo.Web;
 
 [Dependency(ReplaceServices = true)]
-public class DemoBrandingProvider : DefaultBrandingProvider
+public class DemoBrandingProvider(IStringLocalizer<DemoResource> localizer) : DefaultBrandingProvider
 {
-    private IStringLocalizer<DemoResource> _localizer;
-
-    public DemoBrandingProvider(IStringLocalizer<DemoResource> localizer)
-    {
-        _localizer = localizer;
-    }
-
-    public override string AppName => _localizer["AppName"];
+    public override string AppName => localizer["AppName"];
 }

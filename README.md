@@ -11,14 +11,45 @@ This is a layered startup solution based on [Domain Driven Design (DDD)](https:/
 
 ### Configurations
 
-The solution comes with a default configuration that works out of the box. However, you may consider to change the following configuration before running your solution:
+The solution is configured for **POC mode** by default: an **EF Core InMemory** database with automatic schema creation and data seeding on startup. No PostgreSQL or Docker is required.
 
-* Check the `ConnectionStrings` in `appsettings.json` files under the `Abp.Demo.Web` and `Abp.Demo.DbMigrator` projects and change it if you need.
+Configure the database in `appsettings.json` under the `Database` section:
+
+```json
+"Database": {
+  "Provider": "InMemory",
+  "InitializeOnStartup": true,
+  "InMemoryDatabaseName": "BookingSystemDb"
+}
+```
+
+| Setting | Values | Description |
+|---------|--------|-------------|
+| `Provider` | `InMemory` (default) / `PostgreSql` | Database provider |
+| `InitializeOnStartup` | `true` / `false` | Create schema and seed data when the Web app starts |
+| `InMemoryDatabaseName` | string | Shared in-memory store name |
+
+**Switch to PostgreSQL** (optional, for production-like environments):
+
+```json
+"Database": {
+  "Provider": "PostgreSql",
+  "InitializeOnStartup": false
+},
+"ConnectionStrings": {
+  "Default": "Host=localhost;Port=5432;Database=abp;Username=abp;Password=password"
+}
+```
+
+Then run `docker compose up -d` and `Abp.Demo.DbMigrator` before starting the Web app.
+
+* Default admin user (seeded automatically in POC mode): `admin` / `1q2w3E*`
 
 ### Before running the application
 
 * Run `abp install-libs` command on your solution folder to install client-side package dependencies. This step is automatically done when you create a new solution, if you didn't especially disabled it. However, you should run it yourself if you have first cloned this solution from your source control, or added a new client-side package dependency to your solution.
-* Run `Abp.Demo.DbMigrator` to create the initial database. This step is also automatically done when you create a new solution, if you didn't especially disabled it. This should be done in the first run. It is also needed if a new database migration is added to the solution later.
+* **POC (InMemory):** just run `Abp.Demo.Web` — the database is created and seeded automatically.
+* **PostgreSQL:** run `Abp.Demo.DbMigrator` to apply migrations and seed data before the first run.
 
 #### Generating a Signing Certificate
 

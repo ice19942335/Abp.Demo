@@ -15,18 +15,15 @@ namespace Abp.Demo.OpenIddict;
 /* Creates initial data that is needed to property run the application
  * and make client-to-server communication possible.
  */
-public class OpenIddictDataSeedContributor : OpenIddictDataSeedContributorBase, IDataSeedContributor, ITransientDependency
+public class OpenIddictDataSeedContributor(
+    IConfiguration configuration,
+    IOpenIddictApplicationRepository openIddictApplicationRepository,
+    IAbpApplicationManager applicationManager,
+    IOpenIddictScopeRepository openIddictScopeRepository,
+    IOpenIddictScopeManager scopeManager)
+    : OpenIddictDataSeedContributorBase(configuration, openIddictApplicationRepository, applicationManager,
+        openIddictScopeRepository, scopeManager), IDataSeedContributor, ITransientDependency
 {
-    public OpenIddictDataSeedContributor(
-        IConfiguration configuration,
-        IOpenIddictApplicationRepository openIddictApplicationRepository,
-        IAbpApplicationManager applicationManager,
-        IOpenIddictScopeRepository openIddictScopeRepository,
-        IOpenIddictScopeManager scopeManager)
-        : base(configuration, openIddictApplicationRepository, applicationManager, openIddictScopeRepository, scopeManager)
-    {
-    }
-
     [UnitOfWork]
     public virtual async Task SeedAsync(DataSeedContext context)
     {

@@ -10,7 +10,11 @@ using Volo.Abp.Guids;
 
 namespace Abp.Demo;
 
-public class BookingSystemTestDataSeedContributor : IDataSeedContributor, ITransientDependency
+public class BookingSystemTestDataSeedContributor(
+    IRepository<Resource, Guid> resourceRepository,
+    IBookingRepository bookingRepository,
+    IGuidGenerator guidGenerator)
+    : IDataSeedContributor, ITransientDependency
 {
     public static readonly Guid TestResourceId = Guid.Parse("a0000000-0000-0000-0000-000000000001");
     public static readonly Guid InactiveResourceId = Guid.Parse("a0000000-0000-0000-0000-000000000002");
@@ -18,19 +22,7 @@ public class BookingSystemTestDataSeedContributor : IDataSeedContributor, ITrans
     public static readonly Guid ConfirmedBookingId = Guid.Parse("b0000000-0000-0000-0000-000000000002");
     public static readonly Guid TestUserId = Guid.Parse("c0000000-0000-0000-0000-000000000001");
 
-    private readonly IRepository<Resource, Guid> resourceRepository;
-    private readonly IBookingRepository bookingRepository;
-    private readonly IGuidGenerator guidGenerator;
-
-    public BookingSystemTestDataSeedContributor(
-        IRepository<Resource, Guid> resourceRepository,
-        IBookingRepository bookingRepository,
-        IGuidGenerator guidGenerator)
-    {
-        this.resourceRepository = resourceRepository;
-        this.bookingRepository = bookingRepository;
-        this.guidGenerator = guidGenerator;
-    }
+    private readonly IGuidGenerator _guidGenerator = guidGenerator;
 
     public async Task SeedAsync(DataSeedContext context)
     {

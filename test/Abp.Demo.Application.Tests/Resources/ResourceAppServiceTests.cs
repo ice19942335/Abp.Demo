@@ -11,24 +11,24 @@ namespace Abp.Demo.Resources;
 public abstract class ResourceAppServiceTests<TStartupModule> : DemoApplicationTestBase<TStartupModule>
     where TStartupModule : IAbpModule
 {
-    private readonly IResourceAppService resourceAppService;
+    private readonly IResourceAppService _resourceAppService;
 
     protected ResourceAppServiceTests()
     {
-        resourceAppService = GetRequiredService<IResourceAppService>();
+        _resourceAppService = GetRequiredService<IResourceAppService>();
     }
 
     [Fact]
     public async Task Should_Get_List()
     {
-        var result = await resourceAppService.GetListAsync(new PagedAndSortedResultRequestDto());
+        var result = await _resourceAppService.GetListAsync(new PagedAndSortedResultRequestDto());
         result.TotalCount.ShouldBeGreaterThanOrEqualTo(2);
     }
 
     [Fact]
     public async Task Should_Create_Resource()
     {
-        var result = await resourceAppService.CreateAsync(new CreateUpdateResourceDto
+        var result = await _resourceAppService.CreateAsync(new CreateUpdateResourceDto
         {
             Name = "New Workspace",
             Description = "Open plan workspace",
@@ -47,7 +47,7 @@ public abstract class ResourceAppServiceTests<TStartupModule> : DemoApplicationT
     [Fact]
     public async Task Should_Get_Resource()
     {
-        var resource = await resourceAppService.GetAsync(BookingSystemTestDataSeedContributor.TestResourceId);
+        var resource = await _resourceAppService.GetAsync(BookingSystemTestDataSeedContributor.TestResourceId);
 
         resource.ShouldNotBeNull();
         resource.Name.ShouldBe("Conference Room A");
@@ -56,7 +56,7 @@ public abstract class ResourceAppServiceTests<TStartupModule> : DemoApplicationT
     [Fact]
     public async Task Should_Update_Resource()
     {
-        var resource = await resourceAppService.UpdateAsync(
+        var resource = await _resourceAppService.UpdateAsync(
             BookingSystemTestDataSeedContributor.TestResourceId,
             new CreateUpdateResourceDto
             {
@@ -75,12 +75,12 @@ public abstract class ResourceAppServiceTests<TStartupModule> : DemoApplicationT
     [Fact]
     public async Task Should_Delete_Resource()
     {
-        var beforeDelete = await resourceAppService.GetListAsync(new PagedAndSortedResultRequestDto());
+        var beforeDelete = await _resourceAppService.GetListAsync(new PagedAndSortedResultRequestDto());
         var countBefore = beforeDelete.TotalCount;
 
-        await resourceAppService.DeleteAsync(BookingSystemTestDataSeedContributor.TestResourceId);
+        await _resourceAppService.DeleteAsync(BookingSystemTestDataSeedContributor.TestResourceId);
 
-        var afterDelete = await resourceAppService.GetListAsync(new PagedAndSortedResultRequestDto());
+        var afterDelete = await _resourceAppService.GetListAsync(new PagedAndSortedResultRequestDto());
         afterDelete.TotalCount.ShouldBe(countBefore - 1);
     }
 }

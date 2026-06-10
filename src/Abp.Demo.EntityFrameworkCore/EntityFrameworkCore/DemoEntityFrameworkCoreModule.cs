@@ -1,5 +1,7 @@
 using System;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Abp.Demo.Database;
 using Volo.Abp.Uow;
 using Volo.Abp.AuditLogging.EntityFrameworkCore;
 using Volo.Abp.BackgroundJobs.EntityFrameworkCore;
@@ -14,6 +16,7 @@ using Volo.Abp.SettingManagement.EntityFrameworkCore;
 using Volo.Abp.BlobStoring.Database.EntityFrameworkCore;
 using Volo.Abp.TenantManagement.EntityFrameworkCore;
 using Volo.Abp.Studio;
+using Volo.Abp.EntityFrameworkCore.GlobalFilters;
 
 namespace Abp.Demo.EntityFrameworkCore;
 
@@ -34,7 +37,6 @@ public class DemoEntityFrameworkCoreModule : AbpModule
 {
     public override void PreConfigureServices(ServiceConfigurationContext context)
     {
-        // https://www.npgsql.org/efcore/release-notes/6.0.html#opting-out-of-the-new-timestamp-mapping-logic
         AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
         DemoEfCoreEntityExtensionMappings.Configure();
@@ -42,10 +44,12 @@ public class DemoEntityFrameworkCoreModule : AbpModule
 
     public override void ConfigureServices(ServiceConfigurationContext context)
     {
+        var configuration = context.Services.GetConfiguration();
+
+        context.Services.Configure<DatabaseOptions>(configuration.GetSection(DatabaseOptions.SectionName));
+
         context.Services.AddAbpDbContext<DemoDbContext>(options =>
         {
-                /* Remove "includeAllEntities: true" to create
-                 * default repositories only for aggregate roots */
             options.AddDefaultRepositories(includeAllEntities: true);
         });
 
@@ -54,14 +58,31 @@ public class DemoEntityFrameworkCoreModule : AbpModule
             return;
         }
 
+        var provider = configuration["Database:Provider"] ?? DatabaseProviderNames.InMemory;
+        var inMemoryDatabaseName = configuration["Database:InMemoryDatabaseName"] ?? "BookingSystemDb";
+        var isInMemory = provider == DatabaseProviderNames.InMemory;
+
+        if (isInMemory)
+        {
+            Configure<AbpEfCoreGlobalFilterOptions>(filterOptions =>
+            {
+                filterOptions.UseDbFunction = false;
+            });
+        }
+
         Configure<AbpDbContextOptions>(options =>
         {
-            /* The main point to change your DBMS.
-             * See also DemoDbContextFactory for EF Core tooling. */
-
-            options.UseNpgsql();
-
+            if (isInMemory)
+            {
+                options.Configure(context =>
+                {
+                    context.DbContextOptions.UseInMemoryDatabase(inMemoryDatabaseName);
+                });
+            }
+            else
+            {
+                options.UseNpgsql();
+            }
         });
-        
     }
 }

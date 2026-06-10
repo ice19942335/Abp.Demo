@@ -5,7 +5,7 @@ using Xunit;
 namespace Abp.Demo.Pages;
 
 [Collection(DemoTestConsts.CollectionDefinitionName)]
-public class Index_Tests : DemoWebTestBase
+public class IndexTests : DemoWebTestBase
 {
     [Fact]
     public async Task Welcome_Page()

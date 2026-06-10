@@ -7,19 +7,11 @@ using Volo.Abp.Domain.Services;
 
 namespace Abp.Demo.Bookings;
 
-public class BookingManager : DomainService
+public class BookingManager(
+    IBookingRepository bookingRepository,
+    IRepository<Resource, Guid> resourceRepository)
+    : DomainService
 {
-    private readonly IBookingRepository bookingRepository;
-    private readonly IRepository<Resource, Guid> resourceRepository;
-
-    public BookingManager(
-        IBookingRepository bookingRepository,
-        IRepository<Resource, Guid> resourceRepository)
-    {
-        this.bookingRepository = bookingRepository;
-        this.resourceRepository = resourceRepository;
-    }
-
     public async Task<Booking> CreateAsync(
         Guid resourceId,
         Guid userId,

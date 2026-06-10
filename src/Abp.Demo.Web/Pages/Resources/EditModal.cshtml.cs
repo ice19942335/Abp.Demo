@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Abp.Demo.Web.Pages.Resources;
 
-public class EditModalModel : DemoPageModel
+public class EditModalModel(IResourceAppService resourceAppService) : DemoPageModel
 {
     [HiddenInput]
     [BindProperty(SupportsGet = true)]
@@ -13,13 +13,6 @@ public class EditModalModel : DemoPageModel
 
     [BindProperty]
     public CreateUpdateResourceDto Resource { get; set; } = null!;
-
-    private readonly IResourceAppService resourceAppService;
-
-    public EditModalModel(IResourceAppService resourceAppService)
-    {
-        this.resourceAppService = resourceAppService;
-    }
 
     public async Task OnGetAsync()
     {

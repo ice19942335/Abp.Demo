@@ -11,17 +11,17 @@ namespace Abp.Demo.Bookings;
 public abstract class BookingAppServiceTests<TStartupModule> : DemoApplicationTestBase<TStartupModule>
     where TStartupModule : IAbpModule
 {
-    private readonly IBookingAppService bookingAppService;
+    private readonly IBookingAppService _bookingAppService;
 
     protected BookingAppServiceTests()
     {
-        bookingAppService = GetRequiredService<IBookingAppService>();
+        _bookingAppService = GetRequiredService<IBookingAppService>();
     }
 
     [Fact]
     public async Task Should_Get_Booking()
     {
-        var booking = await bookingAppService.GetAsync(BookingSystemTestDataSeedContributor.PendingBookingId);
+        var booking = await _bookingAppService.GetAsync(BookingSystemTestDataSeedContributor.PendingBookingId);
 
         booking.ShouldNotBeNull();
         booking.Status.ShouldBe(BookingStatus.Pending);
@@ -31,7 +31,7 @@ public abstract class BookingAppServiceTests<TStartupModule> : DemoApplicationTe
     [Fact]
     public async Task Should_Get_List()
     {
-        var result = await bookingAppService.GetListAsync(new GetBookingListDto());
+        var result = await _bookingAppService.GetListAsync(new GetBookingListDto());
 
         result.TotalCount.ShouldBeGreaterThanOrEqualTo(2);
     }
@@ -39,7 +39,7 @@ public abstract class BookingAppServiceTests<TStartupModule> : DemoApplicationTe
     [Fact]
     public async Task Should_Filter_By_Status()
     {
-        var result = await bookingAppService.GetListAsync(new GetBookingListDto
+        var result = await _bookingAppService.GetListAsync(new GetBookingListDto
         {
             Status = BookingStatus.Confirmed
         });
@@ -50,21 +50,21 @@ public abstract class BookingAppServiceTests<TStartupModule> : DemoApplicationTe
     [Fact]
     public async Task Should_Confirm_Booking()
     {
-        var result = await bookingAppService.ConfirmAsync(BookingSystemTestDataSeedContributor.PendingBookingId);
+        var result = await _bookingAppService.ConfirmAsync(BookingSystemTestDataSeedContributor.PendingBookingId);
         result.Status.ShouldBe(BookingStatus.Confirmed);
     }
 
     [Fact]
     public async Task Should_Complete_Booking()
     {
-        var result = await bookingAppService.CompleteAsync(BookingSystemTestDataSeedContributor.ConfirmedBookingId);
+        var result = await _bookingAppService.CompleteAsync(BookingSystemTestDataSeedContributor.ConfirmedBookingId);
         result.Status.ShouldBe(BookingStatus.Completed);
     }
 
     [Fact]
     public async Task Should_Cancel_Booking()
     {
-        var result = await bookingAppService.CancelAsync(
+        var result = await _bookingAppService.CancelAsync(
             BookingSystemTestDataSeedContributor.PendingBookingId, "No longer needed");
 
         result.Status.ShouldBe(BookingStatus.Cancelled);
@@ -76,7 +76,7 @@ public abstract class BookingAppServiceTests<TStartupModule> : DemoApplicationTe
     {
         var baseTime = DateTime.UtcNow.AddDays(5).Date.AddHours(14);
 
-        var result = await bookingAppService.CreateAsync(new CreateBookingDto
+        var result = await _bookingAppService.CreateAsync(new CreateBookingDto
         {
             ResourceId = BookingSystemTestDataSeedContributor.TestResourceId,
             StartTime = baseTime,
@@ -95,7 +95,7 @@ public abstract class BookingAppServiceTests<TStartupModule> : DemoApplicationTe
         var baseTime = DateTime.UtcNow.AddDays(5).Date.AddHours(14);
 
         var exception = await Assert.ThrowsAsync<BusinessException>(async () =>
-            await bookingAppService.CreateAsync(new CreateBookingDto
+            await _bookingAppService.CreateAsync(new CreateBookingDto
             {
                 ResourceId = BookingSystemTestDataSeedContributor.InactiveResourceId,
                 StartTime = baseTime,
@@ -112,7 +112,7 @@ public abstract class BookingAppServiceTests<TStartupModule> : DemoApplicationTe
         var baseTime = DateTime.UtcNow.AddDays(1).Date.AddHours(10);
 
         var exception = await Assert.ThrowsAsync<BusinessException>(async () =>
-            await bookingAppService.CreateAsync(new CreateBookingDto
+            await _bookingAppService.CreateAsync(new CreateBookingDto
             {
                 ResourceId = BookingSystemTestDataSeedContributor.TestResourceId,
                 StartTime = baseTime,
@@ -126,7 +126,7 @@ public abstract class BookingAppServiceTests<TStartupModule> : DemoApplicationTe
     [Fact]
     public async Task Should_Get_NextAvailableSlot_For_MeetingRoom()
     {
-        var slot = await bookingAppService.GetNextAvailableSlotAsync(
+        var slot = await _bookingAppService.GetNextAvailableSlotAsync(
             BookingSystemTestDataSeedContributor.TestResourceId);
 
         slot.ShouldNotBeNull();
@@ -138,7 +138,7 @@ public abstract class BookingAppServiceTests<TStartupModule> : DemoApplicationTe
     [Fact]
     public async Task Should_Get_NextAvailableSlot_For_Workspace()
     {
-        var slot = await bookingAppService.GetNextAvailableSlotAsync(
+        var slot = await _bookingAppService.GetNextAvailableSlotAsync(
             SlotTestDataSeedContributor.WorkspaceResourceId);
 
         slot.ShouldNotBeNull();
@@ -149,12 +149,22 @@ public abstract class BookingAppServiceTests<TStartupModule> : DemoApplicationTe
     [Fact]
     public async Task Should_Get_NextAvailableSlot_For_Car()
     {
-        var slot = await bookingAppService.GetNextAvailableSlotAsync(
+        var slot = await _bookingAppService.GetNextAvailableSlotAsync(
             SlotTestDataSeedContributor.CarResourceId);
 
         slot.ShouldNotBeNull();
         slot.ResourceType.ShouldBe(ResourceType.Car);
         slot.IsAvailable.ShouldBeTrue();
         (slot.EndTime - slot.StartTime).TotalHours.ShouldBe(1);
+    }
+
+    [Fact]
+    public async Task Should_Get_Dashboard()
+    {
+        var dashboard = await _bookingAppService.GetDashboardAsync();
+
+        dashboard.ShouldNotBeNull();
+        dashboard.TotalResources.ShouldBeGreaterThan(0);
+        dashboard.TotalBookings.ShouldBeGreaterThanOrEqualTo(2);
     }
 }

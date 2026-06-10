@@ -3,19 +3,17 @@ using Abp.Demo.Bookings;
 
 namespace Abp.Demo.Web.Pages;
 
-public class IndexModel : DemoPageModel
+public class IndexModel(IBookingAppService bookingAppService) : DemoPageModel
 {
-    public DashboardDto Dashboard { get; set; } = null!;
-
-    private readonly IBookingAppService bookingAppService;
-
-    public IndexModel(IBookingAppService bookingAppService)
-    {
-        this.bookingAppService = bookingAppService;
-    }
+    public DashboardDto Dashboard { get; set; } = new();
 
     public async Task OnGetAsync()
     {
+        if (!CurrentUser.IsAuthenticated)
+        {
+            return;
+        }
+
         Dashboard = await bookingAppService.GetDashboardAsync();
     }
 }

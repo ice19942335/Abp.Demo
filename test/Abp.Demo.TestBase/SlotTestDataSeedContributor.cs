@@ -8,17 +8,11 @@ using Volo.Abp.Domain.Repositories;
 
 namespace Abp.Demo;
 
-public class SlotTestDataSeedContributor : IDataSeedContributor, ITransientDependency
+public class SlotTestDataSeedContributor(IRepository<Resource, Guid> resourceRepository)
+    : IDataSeedContributor, ITransientDependency
 {
     public static readonly Guid WorkspaceResourceId = Guid.Parse("a0000000-0000-0000-0000-000000000003");
     public static readonly Guid CarResourceId = Guid.Parse("a0000000-0000-0000-0000-000000000004");
-
-    private readonly IRepository<Resource, Guid> resourceRepository;
-
-    public SlotTestDataSeedContributor(IRepository<Resource, Guid> resourceRepository)
-    {
-        this.resourceRepository = resourceRepository;
-    }
 
     public async Task SeedAsync(DataSeedContext context)
     {

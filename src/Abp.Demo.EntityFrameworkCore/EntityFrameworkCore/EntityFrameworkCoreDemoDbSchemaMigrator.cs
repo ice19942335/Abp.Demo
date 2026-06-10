@@ -2,32 +2,31 @@
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Abp.Demo.Data;
+using Abp.Demo.Database;
 using Volo.Abp.DependencyInjection;
 
 namespace Abp.Demo.EntityFrameworkCore;
 
-public class EntityFrameworkCoreDemoDbSchemaMigrator
+public class EntityFrameworkCoreDemoDbSchemaMigrator(
+    IServiceProvider serviceProvider,
+    IOptions<DatabaseOptions> databaseOptions)
     : IDemoDbSchemaMigrator, ITransientDependency
 {
-    private readonly IServiceProvider _serviceProvider;
-
-    public EntityFrameworkCoreDemoDbSchemaMigrator(IServiceProvider serviceProvider)
-    {
-        _serviceProvider = serviceProvider;
-    }
+    private readonly DatabaseOptions _databaseOptions = databaseOptions.Value;
 
     public async Task MigrateAsync()
     {
-        /* We intentionally resolving the DemoDbContext
-         * from IServiceProvider (instead of directly injecting it)
-         * to properly get the connection string of the current tenant in the
-         * current scope.
-         */
+        var dbContext = serviceProvider.GetRequiredService<DemoDbContext>();
 
-        await _serviceProvider
-            .GetRequiredService<DemoDbContext>()
-            .Database
-            .MigrateAsync();
+        if (_databaseOptions.IsInMemory)
+        {
+            await dbContext.Database.EnsureCreatedAsync();
+        }
+        else
+        {
+            await dbContext.Database.MigrateAsync();
+        }
     }
 }

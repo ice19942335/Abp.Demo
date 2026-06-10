@@ -11,19 +11,20 @@ using Volo.Abp.Users;
 
 namespace Abp.Demo.Bookings;
 
-[Authorize(DemoPermissions.Bookings.Default)]
 public class BookingAppService(
     IBookingRepository bookingRepository,
     BookingManager bookingManager,
     IRepository<Resource, Guid> resourceRepository)
     : DemoAppService, IBookingAppService
 {
+    [Authorize(DemoPermissions.Bookings.Default)]
     public async Task<BookingDto> GetAsync(Guid id)
     {
         var booking = await bookingRepository.GetAsync(id);
         return await ToBookingDtoAsync(booking);
     }
 
+    [Authorize(DemoPermissions.Bookings.Default)]
     public async Task<PagedResultDto<BookingDto>> GetListAsync(GetBookingListDto input)
     {
         var queryable = await bookingRepository.GetQueryableAsync();
@@ -50,6 +51,7 @@ public class BookingAppService(
         return new PagedResultDto<BookingDto>(totalCount, dtos);
     }
 
+    [Authorize(DemoPermissions.Bookings.Default)]
     [Authorize(DemoPermissions.Bookings.Create)]
     public async Task<BookingDto> CreateAsync(CreateBookingDto input)
     {
@@ -65,6 +67,7 @@ public class BookingAppService(
         return await ToBookingDtoAsync(booking);
     }
 
+    [Authorize(DemoPermissions.Bookings.Default)]
     public async Task<BookingDto> ConfirmAsync(Guid id)
     {
         var booking = await bookingRepository.GetAsync(id);
@@ -73,6 +76,7 @@ public class BookingAppService(
         return await ToBookingDtoAsync(booking);
     }
 
+    [Authorize(DemoPermissions.Bookings.Default)]
     public async Task<BookingDto> CompleteAsync(Guid id)
     {
         var booking = await bookingRepository.GetAsync(id);
@@ -81,6 +85,7 @@ public class BookingAppService(
         return await ToBookingDtoAsync(booking);
     }
 
+    [Authorize(DemoPermissions.Bookings.Default)]
     [Authorize(DemoPermissions.Bookings.Cancel)]
     public async Task<BookingDto> CancelAsync(Guid id, string reason)
     {
@@ -90,6 +95,7 @@ public class BookingAppService(
         return await ToBookingDtoAsync(booking);
     }
 
+    [Authorize(DemoPermissions.Bookings.Default)]
     public async Task<NextAvailableSlotDto> GetNextAvailableSlotAsync(Guid resourceId)
     {
         var resource = await resourceRepository.GetAsync(resourceId);
@@ -120,6 +126,7 @@ public class BookingAppService(
         };
     }
 
+    [Authorize]
     public async Task<DashboardDto> GetDashboardAsync()
     {
         var now = DateTime.UtcNow;

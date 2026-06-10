@@ -9,11 +9,11 @@ namespace Abp.Demo.EntityFrameworkCore.Bookings;
 [Collection(DemoTestConsts.CollectionDefinitionName)]
 public class EfCoreBookingRepositoryTests : DemoEntityFrameworkCoreTestBase
 {
-    private readonly IBookingRepository bookingRepository;
+    private readonly IBookingRepository _bookingRepository;
 
     public EfCoreBookingRepositoryTests()
     {
-        bookingRepository = GetRequiredService<IBookingRepository>();
+        _bookingRepository = GetRequiredService<IBookingRepository>();
     }
 
     [Fact]
@@ -21,7 +21,7 @@ public class EfCoreBookingRepositoryTests : DemoEntityFrameworkCoreTestBase
     {
         var baseTime = DateTime.UtcNow.AddDays(1).Date.AddHours(10);
 
-        var hasConflict = await bookingRepository.HasConflictAsync(
+        var hasConflict = await _bookingRepository.HasConflictAsync(
             BookingSystemTestDataSeedContributor.TestResourceId,
             baseTime,
             baseTime.AddHours(1));
@@ -34,7 +34,7 @@ public class EfCoreBookingRepositoryTests : DemoEntityFrameworkCoreTestBase
     {
         var baseTime = DateTime.UtcNow.AddDays(1).Date.AddHours(10);
 
-        var hasConflict = await bookingRepository.HasConflictAsync(
+        var hasConflict = await _bookingRepository.HasConflictAsync(
             BookingSystemTestDataSeedContributor.TestResourceId,
             baseTime.AddHours(5),
             baseTime.AddHours(6));
@@ -47,7 +47,7 @@ public class EfCoreBookingRepositoryTests : DemoEntityFrameworkCoreTestBase
     {
         var baseTime = DateTime.UtcNow.AddDays(1).Date.AddHours(10);
 
-        var hasConflict = await bookingRepository.HasConflictAsync(
+        var hasConflict = await _bookingRepository.HasConflictAsync(
             BookingSystemTestDataSeedContributor.TestResourceId,
             baseTime,
             baseTime.AddHours(1),

@@ -5,20 +5,13 @@ using Volo.Abp.MultiTenancy;
 
 namespace Abp.Demo;
 
-public class DemoTestDataSeedContributor : IDataSeedContributor, ITransientDependency
+public class DemoTestDataSeedContributor(ICurrentTenant currentTenant) : IDataSeedContributor, ITransientDependency
 {
-    private readonly ICurrentTenant _currentTenant;
-
-    public DemoTestDataSeedContributor(ICurrentTenant currentTenant)
-    {
-        _currentTenant = currentTenant;
-    }
-
     public Task SeedAsync(DataSeedContext context)
     {
         /* Seed additional test data... */
 
-        using (_currentTenant.Change(context?.TenantId))
+        using (currentTenant.Change(context?.TenantId))
         {
             return Task.CompletedTask;
         }
