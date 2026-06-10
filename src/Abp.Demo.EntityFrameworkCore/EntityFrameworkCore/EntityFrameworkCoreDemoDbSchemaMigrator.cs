@@ -22,6 +22,7 @@ public class EntityFrameworkCoreDemoDbSchemaMigrator(
 
         if (_databaseOptions.IsInMemory)
         {
+            await dbContext.Database.EnsureDeletedAsync();
             await dbContext.Database.EnsureCreatedAsync();
         }
         else

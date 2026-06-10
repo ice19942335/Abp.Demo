@@ -2,20 +2,20 @@ namespace Abp.Demo.Permissions;
 
 public static class DemoPermissions
 {
-    public const string GroupName = "BookingSystem";
+    public const string GroupName = DemoPermissionNames.GroupName;
 
     public static class Resources
     {
-        public const string Default = GroupName + ".Resources";
-        public const string Create = Default + ".Create";
-        public const string Edit = Default + ".Edit";
-        public const string Delete = Default + ".Delete";
+        public const string Default = DemoPermissionNames.Resources.Default;
+        public const string Create = DemoPermissionNames.Resources.Create;
+        public const string Edit = DemoPermissionNames.Resources.Edit;
+        public const string Delete = DemoPermissionNames.Resources.Delete;
     }
 
     public static class Bookings
     {
-        public const string Default = GroupName + ".Bookings";
-        public const string Create = Default + ".Create";
-        public const string Cancel = Default + ".Cancel";
+        public const string Default = DemoPermissionNames.Bookings.Default;
+        public const string Create = DemoPermissionNames.Bookings.Create;
+        public const string Cancel = DemoPermissionNames.Bookings.Cancel;
     }
 }

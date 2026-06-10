@@ -11,6 +11,7 @@ using Abp.Demo.Localization;
 using Abp.Demo.MultiTenancy;
 using Abp.Demo.Permissions;
 using Abp.Demo.Web.Menus;
+using Abp.Demo.Web.Authentication;
 using Abp.Demo.Web.HealthChecks;
 using Abp.Demo.Web.Database;
 using Microsoft.OpenApi;
@@ -196,10 +197,6 @@ public class DemoWebModule : AbpModule
                 bundle =>
                 {
                     bundle.AddFiles("/global-scripts.js");
-                    if (hostingEnvironment.IsDevelopment())
-                    {
-                        bundle.AddFiles("/dev-login-helper.js");
-                    }
                 }
             );
         });
@@ -301,6 +298,7 @@ public class DemoWebModule : AbpModule
         app.UseAbpStudioLink();
         app.UseAbpSecurityHeaders();
         app.UseAuthentication();
+        app.UseStaleAuthenticationCleanup();
         app.UseAbpOpenIddictValidation();
 
         if (MultiTenancyConsts.IsEnabled)

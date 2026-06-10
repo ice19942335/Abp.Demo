@@ -57,6 +57,8 @@
     "Dashboard:CompletedBookings": "Completed",
     "Dashboard:CancelledBookings": "Cancelled",
     "Dashboard:UpcomingBookings": "Upcoming Bookings",
-    "Dashboard:NoUpcoming": "No upcoming bookings"
+    "Dashboard:NoUpcoming": "No upcoming bookings",
+    "DemoUserPicker": "Quick login (POC)",
+    "DemoUserPickerPlaceholder": "Select a demo user..."
   }
 }
